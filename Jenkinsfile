@@ -5,6 +5,9 @@ pipeline {
       image 'tarampampam/node:13-alpine'
     }
   }
+  environment {
+    HOME = '.'
+  }
   stages {
     stage('Build') {
       steps {
@@ -18,7 +21,7 @@ pipeline {
     }
     stage('Policy Evaluation') {
       // Policy evaluation should only take place against the branch we intend to merge to
-      when { branch 'master' }
+      when { branch 'main' }
       steps {
         sh 'npm run build'  // build script using webpack and the copy-modules-webpack-plugin for easy scanning
         nexusPolicyEvaluation iqStage: 'build', iqApplication: 'npm-example',
@@ -55,15 +58,15 @@ pipeline {
               // By default Jenkins will only checkout the specific branch so we configure to pull the branch we 
               // desire to merge to
               sh "git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"
-              sh 'git fetch origin master'
+              sh 'git fetch origin main'
               
               // Commit changes to package-lock.json file, merge and push to the remote branch
               sh 'git commit -m "committing IQ remediation changes" package-lock.json'
-              sh 'git checkout master'
+              sh 'git checkout main'
               sh "git merge ${GIT_BRANCH}"
 
               // This should automatically close the open PR when pushed              
-              sh 'git push origin master'
+              sh 'git push origin main'
             }
           }
           else {
