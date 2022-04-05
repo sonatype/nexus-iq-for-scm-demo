@@ -5,6 +5,9 @@ pipeline {
       image 'tarampampam/node:13-alpine'
     }
   }
+  environment {
+    HOME = '.'
+  }
   stages {
     stage('Build') {
       steps {
